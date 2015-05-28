@@ -1,6 +1,6 @@
 <?php
 header('Content-type: application/json; charset=utf8');
-include dirname(__DIR__)."/include/config.inc.php";
+include "./include/config.inc.php";
 
 if(isset($_GET['get']))
 {

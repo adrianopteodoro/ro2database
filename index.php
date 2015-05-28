@@ -1,6 +1,6 @@
 <?php
 header('Content-type: text/html; charset=utf8');
-include "include\\config.inc.php";
+include "./include/config.inc.php";
 ?>
 <!DOCTYPE html>
 <html>

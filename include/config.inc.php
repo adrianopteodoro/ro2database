@@ -7,9 +7,9 @@ mb_regex_encoding('UTF-8');
 ob_start('mb_output_handler');
 
 $config = array(
-	'database' => 'ro2db',
-	'dbusername' => 'root',
-	'dbpassword' => '123456',
+	'database' => 'u668280012_db',
+	'dbusername' => 'u668280012_dbuse',
+	'dbpassword' => ':UIj5xQ6Z$kjFC',
 	'dbhost' => 'localhost',
 	'dbport' => '3306'
 );
