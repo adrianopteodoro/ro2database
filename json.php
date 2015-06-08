@@ -31,15 +31,19 @@ function jsonItemData($classe = null, $start = 0, $count = 10)
 				
 function getImage($filename)
 {
+	$noimage = "images/noicon.png";
 	if ($filename != null)
 	{
 		$filename = substr($filename, 2, strlen($filename));
 		$file = strtok($filename, '.');
-		return file_exists(strtolower("images/{$file}.png")) ? strtolower("images/{$file}.png") : "images/ui/icon/noicon.png";
+		$outfile = "images/{$file}.png";
+		$outfile = str_replace("\\", "/", $outfile);
+		$outfile = str_replace("icon", "Icon", $outfile);
+		return file_exists($outfile) ? $outfile : $noimage;
 	}
 	else
 	{
-		return "images/ui/icon/noicon.png";
+		return $noimage;
 	}
 }
 ?>

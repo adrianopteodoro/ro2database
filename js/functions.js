@@ -48,6 +48,7 @@ function getItems(classe, start, count) {
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cansell'}));
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cantrade'}));
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cancompose'}));
+				line.find('#item-' + key + ' .info').append('<a href="javascript:void(0);" class="button">Ver Mais</a>');
                 $.each(val, function (k, v) {
                     switch (k)
                     {
