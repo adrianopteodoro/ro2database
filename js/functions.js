@@ -8,20 +8,20 @@ function itemsPage() {
     $('#content').find("#itemsform").append("<input class='button' type='submit'>");
 
     var classes = {'32': 'Guerreiro',
-            '64': 'Cavaleiro',
-            '97': 'Espadachim',
-            '128': 'Bruxo',
-            '256': 'Feiticeiro',
-            '386': 'Mago',
-            '512': 'Ranger',
-            '1024': 'Beastmaster',
-            '1540': 'Arqueiro',
-            '2048': 'Mercenario',
-            '4096': 'Arruaceiro',
-            '6152': 'Gatuno',
-            '8192': 'Sarcedote',
-            '16384': 'Monge',
-            '24592': 'Noviço'};
+        '64': 'Cavaleiro',
+        '97': 'Espadachim',
+        '128': 'Bruxo',
+        '256': 'Feiticeiro',
+        '386': 'Mago',
+        '512': 'Ranger',
+        '1024': 'Beastmaster',
+        '1540': 'Arqueiro',
+        '2048': 'Mercenario',
+        '4096': 'Arruaceiro',
+        '6152': 'Gatuno',
+        '8192': 'Sarcedote',
+        '16384': 'Monge',
+        '24592': 'Noviço'};
 
     $.each(classes, function (index, value) {
         $('#content').find("#classlist").append("<option id='" + index + "' value='" + value + "'>");
@@ -31,6 +31,15 @@ function itemsPage() {
 }
 
 function getItems(classe, start, count) {
+    var total = 0;
+    var pagecount = 0;
+    $.getJSON('json.php?get=itemcount&classe=' + classe, function (ic) {
+        $.each(ic, function (key, val) {
+            total = val['total'];
+        });
+    });
+
+
     $.getJSON('json.php?get=item&classe=' + classe + '&start=' + start + '&count=' + count, function (data) {
         var items = [];
         $.each(data, function (key, val) {
@@ -48,12 +57,32 @@ function getItems(classe, start, count) {
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cansell'}));
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cantrade'}));
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cancompose'}));
-				line.find('#item-' + key + ' .info').append('<a href="javascript:void(0);" class="button">Ver Mais</a>');
+                line.find('#item-' + key + ' .info').append('<a href="javascript:void(0);" class="button">Ver Mais</a>');
                 $.each(val, function (k, v) {
                     switch (k)
                     {
                         case 'Name':
                             line.find('.name').html(v);
+                            break;
+                        case 'Grade':
+                            //line.find('.name').append('&nbsp;<span>' + v + '</span>');
+                            switch (v) {
+                                case '1':
+                                    line.find('.name').addClass('normal');
+                                    break;
+                                case '2':
+                                    line.find('.name').addClass('green');
+                                    break;
+                                case '3':
+                                    line.find('.name').addClass('blue');
+                                    break;
+                                case '4':
+                                    line.find('.name').addClass('purple');
+                                    break;
+                                default:
+                                    line.find('.name').addClass('normal');
+                                    break;
+                            }
                             break;
                         case 'Icon':
                             line.find('.icon').attr('src', v);
@@ -93,17 +122,27 @@ function getItems(classe, start, count) {
                 items.push(line.html());
             }
         });
-
         itemsPage();
-
         $('<ul/>', {html: items.join(''), 'id': 'itemlist'}).appendTo('#content');
         $('#content').append('<br style="clear: both;" />');
-
         // Pagination
-        var pages = $('<div/>').append($('<div/>', {'id': 'pages'}));
-        if (start > 0)
-            pages.find('#pages').append('<a id="back" class="button" href="javascript:void(0);" onClick="getItems(' + classe + ', ' + (start - count) + ', ' + count + ');"><< Anterior</a>');
-        pages.find('#pages').append('<a id="next" class="button" href="javascript:void(0);" onClick="getItems(' + classe + ', ' + (start + count) + ', ' + count + ');">Próxima >></a>');
+        var pages = $('<div/>').append($('<div/>', {'id': 'pagination'}));
+        pages.find('#pagination').append($('<div/>', {'id': 'back'}));
+        pages.find('#pagination').append($('<div/>', {'id': 'pages'}));
+        pages.find('#pagination').append($('<div/>', {'id': 'next'}));
+
+        // Pages
+        pagecount = total / count;
+        pagecount = Math.round(pagecount);
+        pages.find('#pages').append("<a id=\"first_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", 0, " + count + ");\">1</a>");
+        pages.find('#pages').append("<a id=\"last_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + (total - count) + ", " + count + ");\">" + pagecount + "</a>");
+
+        if (start > 0) {
+            pages.find('#back').append('<a class="button" href="javascript:void(0);" onClick="window.getItems(' + classe + ', ' + (start - count) + ', ' + count + ');"><< Anterior</a>');
+        }
+        if (total > (start + count)) {
+            pages.find('#next').append('<a class="button" href="javascript:void(0);" onClick="window.getItems(' + classe + ', ' + (start + count) + ', ' + count + ');">Próxima >></a>');
+        }
         $('#content').append(pages.html());
         $('#content').append('<br style="clear: both;" />');
     });

@@ -11,12 +11,12 @@ include "./include/config.inc.php";
         <?php include './include/javalibs.inc.php'; ?>
         <script type="text/javascript" src="js/functions.js"></script>
     </head>
-    <body onload="getItems(null, 0, 10);">
+    <body onload="window.getItems(0, 0, 20);">
         <div id="wrapper">
             <div id="container">
                 <div id="nav">
                     <ul>
-                        <li><a href="javascript:void(0);" onClick="getItems(null, 0, 10);">Items List</a></li>
+                        <li><a href="javascript:void(0);" onClick="window.getItems(0, 0, 20);">Items List</a></li>
                         <li><a href="javascript:void(0);">Skills List</a></li>
                         <li><a href="javascript:void(0);">Quest List</a></li>
                     </ul>
