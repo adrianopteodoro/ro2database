@@ -65,9 +65,8 @@ function getImage($filename) {
     if ($filename != null) {
         $filename = substr($filename, 2, strlen($filename));
         $file = strtok($filename, '.');
-        $outfile = "images/{$file}.png";
-        $outfile = str_replace("\\", "/", $outfile);
-        $outfile = str_replace("icon", "Icon", $outfile);
+        $tmp = strtolower("images/{$file}.png");
+        $outfile = str_replace("\\", "/", $tmp);
         return file_exists($outfile) ? $outfile : $noimage;
     } else {
         return $noimage;
