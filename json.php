@@ -1,6 +1,5 @@
 <?php
-
-include "./include/config.inc.php";
+include "./include/main.inc.php";
 
 if (isset($_GET['get'])) {
     switch ($_GET['get']) {
@@ -30,47 +29,4 @@ if (isset($_GET['get'])) {
 } else {
     die();
 }
-
-function jsonItemCount($classe = 0) {
-    $add = "";
-    if ($classe != 0) {
-        $add = "WHERE `Require_Job`='{$classe}'";
-    }
-    $query = "SELECT COUNT(*) AS `total` FROM `iteminfo` {$add};";
-    $data = queryDB($query);
-    if ($data != null) {
-        header('Content-type: application/json; charset=utf8');
-        echo json_encode($data);
-    }
-}
-
-function jsonItemData($classe = 0, $start = 0, $count = 10) {
-    $add = "";
-    if ($classe != 0) {
-        $add = "WHERE `Require_Job`='{$classe}'";
-    }
-    $query = "SELECT * FROM `iteminfo` {$add} ORDER BY `ID` LIMIT {$start}, {$count};";
-    $data = queryDB($query);
-    if ($data != null) {
-        for ($i = 0; $i < $count; $i++) {
-            $data[$i]['Icon'] = getImage($data[$i]['Icon']);
-        }
-        header('Content-type: application/json; charset=utf8');
-        echo json_encode($data);
-    }
-}
-
-function getImage($filename) {
-    $noimage = "images/noicon.png";
-    if ($filename != null) {
-        $filename = substr($filename, 2, strlen($filename));
-        $file = strtok($filename, '.');
-        $tmp = strtolower("images/{$file}.png");
-        $outfile = str_replace("\\", "/", $tmp);
-        return file_exists($outfile) ? $outfile : $noimage;
-    } else {
-        return $noimage;
-    }
-}
-
 ?>

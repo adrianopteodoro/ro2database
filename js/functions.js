@@ -1,29 +1,38 @@
+var charSex = {
+    '0': 'Sem restrição',
+    '1': 'Masculino',
+    '2': 'Feminino',
+    '3': 'Ambos'
+};
+
+var classNames = {
+    '0': 'Todas',
+    '32': 'Guerreiro',
+    '64': 'Cavaleiro',
+    '97': 'Espadachim',
+    '128': 'Bruxo',
+    '256': 'Feiticeiro',
+    '386': 'Mago',
+    '512': 'Ranger',
+    '1024': 'Beastmaster',
+    '1540': 'Arqueiro',
+    '2048': 'Mercenario',
+    '4096': 'Arruaceiro',
+    '6152': 'Gatuno',
+    '8192': 'Sarcedote',
+    '16384': 'Monge',
+    '24592': 'Noviço'
+};
+
 function itemsPage() {
     $('#content').html("");
-
     $('#content').append("<div id='itemlistoptions'></div>");
     $('#content').find("#itemlistoptions").append("<form id='itemsform' action='javascript:void(0);' method='get'></form>");
     $('#content').find("#itemsform").append("<span>Classe:</span><input class='classes' list='classlist'>");
     $('#content').find("#itemsform").append("<datalist id='classlist'></datalist>");
     $('#content').find("#itemsform").append("<input class='button' type='submit'>");
 
-    var classes = {'32': 'Guerreiro',
-        '64': 'Cavaleiro',
-        '97': 'Espadachim',
-        '128': 'Bruxo',
-        '256': 'Feiticeiro',
-        '386': 'Mago',
-        '512': 'Ranger',
-        '1024': 'Beastmaster',
-        '1540': 'Arqueiro',
-        '2048': 'Mercenario',
-        '4096': 'Arruaceiro',
-        '6152': 'Gatuno',
-        '8192': 'Sarcedote',
-        '16384': 'Monge',
-        '24592': 'Noviço'};
-
-    $.each(classes, function (index, value) {
+    $.each(classNames, function (index, value) {
         $('#content').find("#classlist").append("<option id='" + index + "' value='" + value + "'>");
     });
 
@@ -59,8 +68,7 @@ function getItems(classe, start, count) {
                 line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cancompose'}));
                 line.find('#item-' + key + ' .info').append('<a href="javascript:void(0);" class="button">Ver Mais</a>');
                 $.each(val, function (k, v) {
-                    switch (k)
-                    {
+                    switch (k) {
                         case 'Name':
                             line.find('.name').html(v);
                             break;
@@ -91,7 +99,7 @@ function getItems(classe, start, count) {
                             line.find('.reqjob').html('<b>Classe:</b> ' + getiReqJob(v));
                             break;
                         case 'Require_Level':
-                            line.find('.reqlvl').html('<b>Lvl:</b> ' + v);
+                            line.find('.reqlvl').html('<b>Lvl:</b> ' + getiLvl(v));
                             break;
                         case 'Require_Sex':
                             line.find('.reqsex').html('<b>Sexo:</b> ' + getiReqSex(v));
@@ -132,10 +140,37 @@ function getItems(classe, start, count) {
         pages.find('#pagination').append($('<div/>', {'id': 'next'}));
 
         // Pages
+        var apage =  Math.round((count + start) / count);
+        var i = 0;
         pagecount = total / count;
         pagecount = Math.round(pagecount);
-        pages.find('#pages').append("<a id=\"first_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", 0, " + count + ");\">1</a>");
-        pages.find('#pages').append("<a id=\"last_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + (total - count) + ", " + count + ");\">" + pagecount + "</a>");
+        if (apage !== 1) {
+            pages.find('#pages').append("<a id=\"first_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", 0, " + count + ");\">1</a>");
+            if ((apage - 4) > 1) {
+                pages.find('#pages').append("<span id=\"page\" class=\"button\">. . .</span>");
+            }
+        }
+        if (apage > 1) {
+            for (i = (apage - 4); i < apage; i++) {
+                if (i > 1) {
+                    pages.find('#pages').append("<a id=\"page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + ((i * 5) - 5) + ", " + count + ");\">" + i + "</a>");
+                }
+            }
+        }
+        pages.find('#pages').append("<span id=\"page_actual\" class=\"button\">" + apage + "</span>");
+        if (apage < pagecount) {
+            for (i = (apage + 1); i < (apage + 5); i++) {
+                if (i < pagecount) {
+                    pages.find('#pages').append("<a id=\"page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + ((i * 5) - 5) + ", " + count + ");\">" + i + "</a>");
+                }
+            }
+        }
+        if (apage !== pagecount) {
+            if ((apage + 4) < pagecount) {
+                pages.find('#pages').append("<span id=\"page\" class=\"button\">. . .</span>");
+            }
+            pages.find('#pages').append("<a id=\"last_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + (total - count) + ", " + count + ");\">" + pagecount + "</a>");
+        }
 
         if (start > 0) {
             pages.find('#back').append('<a class="button" href="javascript:void(0);" onClick="window.getItems(' + classe + ', ' + (start - count) + ', ' + count + ');"><< Anterior</a>');
@@ -153,73 +188,29 @@ function getiPrice(id) {
 }
 
 function getiReqSex(id) {
-    switch (id)
-    {
-        case '1':
-            return 'Masculino';
-            break;
-        case '2':
-            return 'Feminino';
-            break;
-        case '3':
-            return 'Ambos';
-            break;
-        default:
-            return 'N/A';
-            break;
-    }
+    var ret = id;
+    $.each(charSex, function (i, v) {
+        if (id == i) {
+            ret = v;
+        }
+    });
+    return ret;
 }
 
 function getiReqJob(id) {
-    switch (id)
-    {
-        case '32':
-            return 'Guerreiro';
-            break;
-        case '64':
-            return 'Cavaleiro';
-            break;
-        case '97':
-            return 'Espadachim';
-            break;
-        case '128':
-            return 'Bruxo';
-            break;
-        case '256':
-            return 'Feiticeiro';
-            break;
-        case '386':
-            return 'Mago';
-            break;
-        case '512':
-            return 'Ranger';
-            break;
-        case '1024':
-            return 'Beastmaster';
-            break;
-        case '1540':
-            return 'Arqueiro';
-            break;
-        case '2048':
-            return 'Mercenario';
-            break;
-        case '4096':
-            return 'Arruaceiro';
-            break;
-        case '6152':
-            return 'Gatuno';
-            break;
-        case '8192':
-            return 'Sarcedote';
-            break;
-        case '16384':
-            return 'Monge';
-            break;
-        case '24592':
-            return 'Noviço';
-            break;
-        default:
-            return 'N/A (' + id + ')';
-            break;
+    var ret = id;
+    $.each(classNames, function (i, v) {
+        if (id == i) {
+            ret = v;
+        }
+    });
+    return ret;
+}
+
+function getiLvl(lv) {
+    var ret = lv;
+    if (lv == 0) {
+        ret = 'Sem restrição';
     }
+    return ret;
 }

@@ -1,4 +1,5 @@
-/nbproject/private/*
+.idea/*
 /images/UI/icon/*
 /upload/*.*
 *.zip
+sh.exe.stackdump
