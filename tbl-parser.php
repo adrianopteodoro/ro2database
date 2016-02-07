@@ -9,13 +9,13 @@
                 $filename = $_FILES['userfile']['name'];
                 list($file, $ext) = explode('.', $filename);
                 if ($ext != "tbl") {
-                    echo "<h2>O arquivo {$filename} � inv�lido, somente arquivos \".tbl\" s�o permitidos!</h2><br /><a href=\"tbl-parser.php\"><< Voltar</a><br />";
+                    echo "<h2>O arquivo {$filename} invalido, somente arquivos \".tbl\" sao permitidos!</h2><br /><a href=\"tbl-parser.php\"><< Voltar</a><br />";
                     die();
                 }
                 $uploaddir = 'upload/';
                 $uploadfile = $uploaddir . basename($_FILES['userfile']['name']);
                 move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile);
-                $query = "";
+                $query = "INSERT INTO `itemnames` (`CDITEM`,`NAME`) VALUES ";
 
                 $delimiter = "\t";
 
@@ -28,7 +28,7 @@
                 $count = 0;
                 foreach ($data as $row) {
                     if ($count > 0 && $row[0] != "") {
-                        $query .= "UPDATE `iteminfo` SET `Name` = \"{$row[1]}\" WHERE `String_Item_Name` = \"{$row[0]}\";<br />\n";
+                        $query .= "(\"{$row[0]}\",\"{$row[1]}\"),<br />\n";
                     }
                     $count++;
                 }

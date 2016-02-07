@@ -24,113 +24,130 @@ var classNames = {
     '24592': 'Noviço'
 };
 
-function itemsPage() {
-    $('#content').html("");
-    $('#content').append("<div id='itemlistoptions'></div>");
-    $('#content').find("#itemlistoptions").append("<form id='itemsform' action='javascript:void(0);' method='get'></form>");
-    $('#content').find("#itemsform").append("<span>Classe:</span><input class='classes' list='classlist'>");
-    $('#content').find("#itemsform").append("<datalist id='classlist'></datalist>");
-    $('#content').find("#itemsform").append("<input class='button' type='submit'>");
+var row_total = 0;
+var sel_class = 0;
+var act_start = 0;
+var itens_page = 5;
 
-    $.each(classNames, function (index, value) {
-        $('#content').find("#classlist").append("<option id='" + index + "' value='" + value + "'>");
-    });
-
-    $('#content').append('<br style="clear: both;" />');
+function updateVars(new_start) {
+    sel_class = $("#selclass").find('option:selected').val();
+    act_start = new_start;
 }
 
-function getItems(classe, start, count) {
-    var total = 0;
-    var pagecount = 0;
-    $.getJSON('json.php?get=itemcount&classe=' + classe, function (ic) {
-        $.each(ic, function (key, val) {
-            total = val['total'];
-        });
+function itemsPage() {
+    var itemPage =  $('<li/>').append($('<li/>', {'id': 'filteroptions'}));
+    itemPage.find('#filteroptions').append("<div id='itemlistoptions'></div>");
+    itemPage.find("#filteroptions #itemlistoptions").append("<form id='itemsform' action='javascript:void(0);' method='get'></form>");
+    itemPage.find("#filteroptions #itemlistoptions #itemsform").append("<span class='classtext'>Classe:</span><select id='selclass' class='classes' list='classlist'>");
+    itemPage.find("#filteroptions #itemlistoptions #itemsform").append("<input class='button' type='submit' onclick='window.updateVars(0);window.getItems();' value='Filtrar'>");
+
+    $.each(classNames, function (index, value) {
+        var selected = '';
+        if(index == sel_class) {
+            selected = ' selected="true"';
+        }
+        itemPage.find("#filteroptions #itemlistoptions #itemsform #selclass").append("<option id='" + index + "' value='" + index + "'" + selected + ">" + value + "</option>");
     });
 
+    //$('#content').append('<br style="clear: both;" />');
+    return itemPage.html();
+}
 
-    $.getJSON('json.php?get=item&classe=' + classe + '&start=' + start + '&count=' + count, function (data) {
+function getItems() {
+    $.getJSON('json.php?get=item&classe=' + sel_class + '&start=' + act_start + '&count=' + itens_page, function (data) {
         var items = [];
+        items.push(itemsPage());
         $.each(data, function (key, val) {
-            if (val['ID'] !== null) {
-                var line = $('<li/>').append($('<li/>', {'id': 'item-' + key}));
-                line.find('#item-' + key).append($('<img/>', {'class': 'icon'}), $('<div/>', {'class': 'info'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'name'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'reqjob'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'reqlvl'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'reqsex'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'price'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'candrop'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'candeposit'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'candestruct'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cansell'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cantrade'}));
-                line.find('#item-' + key + ' .info').append($('<span/>', {'class': 'cancompose'}));
-                line.find('#item-' + key + ' .info').append('<a href="javascript:void(0);" class="button">Ver Mais</a>');
-                $.each(val, function (k, v) {
-                    switch (k) {
-                        case 'Name':
-                            line.find('.name').html(v);
-                            break;
-                        case 'Grade':
-                            //line.find('.name').append('&nbsp;<span>' + v + '</span>');
-                            switch (v) {
-                                case '1':
-                                    line.find('.name').addClass('normal');
+            if (key == 'total') {
+                $.each(val, function (kk, vv) {
+                    row_total = vv['total'];
+                });
+            }
+            if (key == 'data') {
+                $.each(val, function (kk, vv) {
+                    if (vv['ID'] !== null) {
+                        var line = $('<li/>').append($('<li/>', {'id': 'item-' + kk}));
+                        line.find('#item-' + kk).append($('<img/>', {'class': 'icon'}), $('<div/>', {'class': 'info'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'name'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'reqjob'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'reqlvl'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'reqsex'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'price'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'candrop'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'candeposit'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'candestruct'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'cansell'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'cantrade'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'cancompose'}));
+                        line.find('#item-' + kk + ' .info').append('<a href="javascript:void(0);" class="button">Ver Mais</a>');
+                        $.each(vv, function (k, v) {
+                            switch (k) {
+                                case 'Name':
+                                    line.find('.name').html(v);
                                     break;
-                                case '2':
-                                    line.find('.name').addClass('green');
+                                case 'Grade':
+                                    //line.find('.name').append('&nbsp;<span>' + v + '</span>');
+                                    switch (v) {
+                                        case '1':
+                                            line.find('.name').addClass('normal');
+                                            break;
+                                        case '2':
+                                            line.find('.name').addClass('green');
+                                            break;
+                                        case '3':
+                                            line.find('.name').addClass('blue');
+                                            break;
+                                        case '4':
+                                            line.find('.name').addClass('purple');
+                                            break;
+                                        default:
+                                            line.find('.name').addClass('normal');
+                                            break;
+                                    }
                                     break;
-                                case '3':
-                                    line.find('.name').addClass('blue');
+                                case 'Icon':
+                                    line.find('.icon').attr('src', v);
                                     break;
-                                case '4':
-                                    line.find('.name').addClass('purple');
+                                case 'Require_Job':
+                                    line.find('.reqjob').html('<b>Classe:</b> ' + getiReqJob(v));
                                     break;
-                                default:
-                                    line.find('.name').addClass('normal');
+                                case 'Require_Level':
+                                    line.find('.reqlvl').html('<b>Lvl:</b> ' + getiLvl(v));
+                                    break;
+                                case 'Require_Sex':
+                                    line.find('.reqsex').html('<b>Sexo:</b> ' + getiReqSex(v));
+                                    break;
+                                case 'Price_Buy':
+                                    line.find('.price').html('<b>Preço:</b> ' + getiPrice(v));
+                                    break;
+                                case 'Is_Drop':
+                                    line.find('.candrop').html('<b>Pode dropar:</b> ' + (v ? 'Sim' : 'Não'));
+                                    break;
+                                case 'Is_Deposit':
+                                    line.find('.candeposit').html('<b>Pode depositar:</b> ' + (v ? 'Sim' : 'Não'));
+                                    break;
+                                case 'Is_Destruct':
+                                    line.find('.candestruct').html('<b>Pode destruir:</b> ' + (v ? 'Sim' : 'Não'));
+                                    break;
+                                case 'Is_Sell':
+                                    line.find('.cansell').html('<b>Pode vender:</b> ' + (v ? 'Sim' : 'Não'));
+                                    break;
+                                case 'Is_Trade':
+                                    line.find('.cantrade').html('<b>Pode trocar:</b> ' + (v ? 'Sim' : 'Não'));
+                                    break;
+                                case 'Is_Compose':
+                                    line.find('.cancompose').html('<b>Pode compor:</b> ' + (v ? 'Sim' : 'Não'));
                                     break;
                             }
-                            break;
-                        case 'Icon':
-                            line.find('.icon').attr('src', v);
-                            break;
-                        case 'Require_Job':
-                            line.find('.reqjob').html('<b>Classe:</b> ' + getiReqJob(v));
-                            break;
-                        case 'Require_Level':
-                            line.find('.reqlvl').html('<b>Lvl:</b> ' + getiLvl(v));
-                            break;
-                        case 'Require_Sex':
-                            line.find('.reqsex').html('<b>Sexo:</b> ' + getiReqSex(v));
-                            break;
-                        case 'Price_Buy':
-                            line.find('.price').html('<b>Preço:</b> ' + getiPrice(v));
-                            break;
-                        case 'Is_Drop':
-                            line.find('.candrop').html('<b>Pode dropar:</b> ' + (v ? 'Sim' : 'Não'));
-                            break;
-                        case 'Is_Deposit':
-                            line.find('.candeposit').html('<b>Pode depositar:</b> ' + (v ? 'Sim' : 'Não'));
-                            break;
-                        case 'Is_Destruct':
-                            line.find('.candestruct').html('<b>Pode destruir:</b> ' + (v ? 'Sim' : 'Não'));
-                            break;
-                        case 'Is_Sell':
-                            line.find('.cansell').html('<b>Pode vender:</b> ' + (v ? 'Sim' : 'Não'));
-                            break;
-                        case 'Is_Trade':
-                            line.find('.cantrade').html('<b>Pode trocar:</b> ' + (v ? 'Sim' : 'Não'));
-                            break;
-                        case 'Is_Compose':
-                            line.find('.cancompose').html('<b>Pode compor:</b> ' + (v ? 'Sim' : 'Não'));
-                            break;
+                        });
+                        items.push(line.html());
                     }
                 });
-                items.push(line.html());
             }
+
+            /**/
         });
-        itemsPage();
+        $('#content').html('');
         $('<ul/>', {html: items.join(''), 'id': 'itemlist'}).appendTo('#content');
         $('#content').append('<br style="clear: both;" />');
         // Pagination
@@ -140,12 +157,12 @@ function getItems(classe, start, count) {
         pages.find('#pagination').append($('<div/>', {'id': 'next'}));
 
         // Pages
-        var apage =  Math.round((count + start) / count);
+        var apage =  Math.round((itens_page + act_start) / itens_page);
         var i = 0;
-        pagecount = total / count;
+        var pagecount = row_total / itens_page;
         pagecount = Math.round(pagecount);
         if (apage !== 1) {
-            pages.find('#pages').append("<a id=\"first_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", 0, " + count + ");\">1</a>");
+            pages.find('#pages').append("<a id=\"first_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.updateVars(0);window.getItems();\">1</a>");
             if ((apage - 4) > 1) {
                 pages.find('#pages').append("<span id=\"page\" class=\"button\">. . .</span>");
             }
@@ -153,7 +170,7 @@ function getItems(classe, start, count) {
         if (apage > 1) {
             for (i = (apage - 4); i < apage; i++) {
                 if (i > 1) {
-                    pages.find('#pages').append("<a id=\"page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + ((i * 5) - 5) + ", " + count + ");\">" + i + "</a>");
+                    pages.find('#pages').append("<a id=\"page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.updateVars(" + ((i * 5) - 5) + ");window.getItems();\">" + i + "</a>");
                 }
             }
         }
@@ -161,7 +178,7 @@ function getItems(classe, start, count) {
         if (apage < pagecount) {
             for (i = (apage + 1); i < (apage + 5); i++) {
                 if (i < pagecount) {
-                    pages.find('#pages').append("<a id=\"page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + ((i * 5) - 5) + ", " + count + ");\">" + i + "</a>");
+                    pages.find('#pages').append("<a id=\"page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.updateVars(" + ((i * 5) - 5) + ");window.getItems();\">" + i + "</a>");
                 }
             }
         }
@@ -169,14 +186,14 @@ function getItems(classe, start, count) {
             if ((apage + 4) < pagecount) {
                 pages.find('#pages').append("<span id=\"page\" class=\"button\">. . .</span>");
             }
-            pages.find('#pages').append("<a id=\"last_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.getItems(" + classe + ", " + (total - count) + ", " + count + ");\">" + pagecount + "</a>");
+            pages.find('#pages').append("<a id=\"last_page\" href=\"javascript:void(0);\" class=\"button\" onClick=\"window.updateVars(" + (row_total - itens_page) + ");window.getItems();\">" + pagecount + "</a>");
         }
 
-        if (start > 0) {
-            pages.find('#back').append('<a class="button" href="javascript:void(0);" onClick="window.getItems(' + classe + ', ' + (start - count) + ', ' + count + ');"><< Anterior</a>');
+        if (act_start > 0) {
+            pages.find('#back').append('<a class="button" href="javascript:void(0);" onClick="window.updateVars(' + (act_start - itens_page) + ');window.getItems();"><< Anterior</a>');
         }
-        if (total > (start + count)) {
-            pages.find('#next').append('<a class="button" href="javascript:void(0);" onClick="window.getItems(' + classe + ', ' + (start + count) + ', ' + count + ');">Próxima >></a>');
+        if (row_total > (act_start + itens_page)) {
+            pages.find('#next').append('<a class="button" href="javascript:void(0);" onClick="window.updateVars(' + (act_start + itens_page) + ');window.getItems();">Próxima >></a>');
         }
         $('#content').append(pages.html());
         $('#content').append('<br style="clear: both;" />');

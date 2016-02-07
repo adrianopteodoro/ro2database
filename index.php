@@ -16,9 +16,9 @@ include "./include/main.inc.php";
                 <div id="nav">
                     <ul>
 						<li><a href="./">Home<a></li>
-                        <li><a href="javascript:void(0);" onClick="window.getItems(0, 0, 5);">Items List</a></li>
-                        <li><a href="javascript:void(0);">Skills List</a></li>
-                        <li><a href="javascript:void(0);">Quest List</a></li>
+                        <li><a href="javascript:void(0);" onClick="window.getItems();">Items List</a></li>
+                        <li><a href="javascript:void(0);">Skills List (EM BREVE)</a></li>
+                        <li><a href="javascript:void(0);">Quest List (EM BREVE)</a></li>
                     </ul>
                 </div>
                 <div id="content">
