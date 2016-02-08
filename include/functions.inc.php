@@ -1,5 +1,6 @@
 <?php
 include "./include/config.inc.php";
+include "./include/queries.inc.php";
 
 function queryDB($query) {
     global $config;
@@ -21,86 +22,42 @@ function javaLibs() {
 	}
 }
 
-function jsonItemCount($classe = 0) {
-
-    if ($data != null) {
-        header('Content-type: application/json; charset=utf8');
-        echo json_encode($data);
-    }
-}
-
-function jsonItemData($classe = 0, $start = 0, $count = 10) {
+function jsonItemData($opt = null, $start = 0, $count = 5) {
+    global $qItemData, $qItemDataCount;
     $add = "";
     $data = [];
 
-    if ($classe != 0) {
-        $add = "AND `Require_Job`='{$classe}'";
+    $addcount = 1;
+    if ($opt != null) {
+        if($opt['classe'] != 0 || $opt['category'] != 0) {
+            $add .=" WHERE ";
+        }
+        foreach ($opt as $o) {
+            if (isset($opt['classe']) && ($opt['classe'] == $o) && $o != 0) {
+                if($addcount > 1) {
+                    $add .= "AND ";
+                }
+                $add .= "i.`Require_Job` = '{$o}' ";
+                $addcount++;
+            }
+            if (isset($opt['category']) && ($opt['category'] == $o) && $o != 0) {
+                if($addcount > 1) {
+                    $add .= "AND ";
+                }
+                $add .= "c.`Index` = '{$o}' ";
+                $addcount++;
+            }
+        }
     }
 
-    $query = "SELECT COUNT(*) AS `total` FROM `iteminfo`,`itemnames` n WHERE n.`CDITEM` = `String_Item_Name` {$add};";
+    $query = "{$qItemDataCount} {$add};";
     $total = queryDB($query);
     $data['total'] = $total;
 
-    $query = "SELECT `ID`,
-	n.`NAME` AS `Name`,
-	`NationEnable`,
-	`Item_Type`,
-	`Item_Type_Option`,
-	`Item_Category`,
-	`Grade`,
-	`Grinding_Trait_Able`,
-	`Abili_val`,
-	`Price_Buy`,
-	`Price_Sell`,
-	`Stack_Max`,
-	`Item_Lv`,
-	`Require_Level`,
-	`ItemValueLv`,
-	`Min_MasteryGrade`,
-	`Min_MasteryLevel`,
-	`Require_Sex`,
-	`Require_Job`,
-	`Equip_Type`,
-	`Equip_Slot`,
-	`Equip_Slot_Overlap`,
-	`Weapon_Type`,
-	`Armor_Type`,
-	`Bag_Size`,
-	`Bind_Type`,
-	`Durability`,
-	`Possession_Max`,
-	`RandomSet_ID`,
-	`Socket_GroupID`,
-	`Effect_ID_1`,
-	`Skill_ID_1`,
-	`Theme_ID`,
-	`Is_Drop`,
-	`Is_Deposit`,
-	`Is_Destruct`,
-	`Is_Sell`,
-	`Is_Trade`,
-	`Is_Compose`,
-	`High_Category`,
-	`Medium_Category`,
-	`Low_Category`,
-	`Ignore_Search`,
-	`Including_Button`,
-	`Costume_Animation`,
-	`FxGroupID`,
-	`Default_Color`,
-	`Color_Variation`,
-	`CollisionType_ID`,
-	`Icon`,
-	`UpdateCode`
-	FROM
-	`iteminfo`,
-	`itemnames` n
-	WHERE n.`CDITEM` = `String_Item_Name` {$add}
-	ORDER BY `ID`
-	LIMIT {$start}, {$count};";
+    $query = "{$qItemData} {$add} ORDER BY i.`ID` LIMIT {$start}, {$count};";
     $data['data'] = queryDB($query);
 
-    if ($data != null) {
+    if ($data['data'] != null && $data['total'] != null) {
         for ($i = 0; $i < $count; $i++) {
             $data['data'][$i]['Icon'] = getImage($data['data'][$i]['Icon']);
         }

@@ -4,26 +4,28 @@ include "./include/main.inc.php";
 if (isset($_GET['get'])) {
     switch ($_GET['get']) {
         case 'item':
-            $classe = 0;
+            $opt = null;
             $start = 0;
-            $count = 10;
-            if (isset($_GET['classe'])) {
-                $classe = $_GET['classe'];
+            $count = 5;
+            $data = [];
+            if (isset($_GET['data'])) {
+                $data = json_decode($_GET['data']);
             }
-            if (isset($_GET['start'])) {
-                $start = $_GET['start'];
+            foreach($data as $d) {
+                if (isset($d->{'classe'})) {
+                    $opt['classe'] = $d->{'classe'};
+                }
+                if (isset($d->{'category'})) {
+                    $opt['category'] = $d->{'category'};
+                }
+                if (isset($d->{'start'})) {
+                    $start = $d->{'start'};
+                }
+                if (isset($d->{'count'})) {
+                    $count = $d->{'count'};
+                }
             }
-            if (isset($_GET['count'])) {
-                $count = $_GET['count'];
-            }
-            jsonItemData($classe, $start, $count);
-            break;
-        case 'itemcount':
-            $classe = 0;
-            if (isset($_GET['classe'])) {
-                $classe = $_GET['classe'];
-            }
-            jsonItemCount($classe);
+            jsonItemData($opt, $start, $count);
             break;
     }
 } else {

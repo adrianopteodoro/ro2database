@@ -14,7 +14,7 @@ $config = [
   JavaScript Libs List
  */
 $libs = [
-    "jQuery" => "jquery-2.1.4.min.js",
+    "jQuery" => "jquery-2.2.0.min.js",
     "AngularJS" => "angular.min.js"
 ];
 ?>

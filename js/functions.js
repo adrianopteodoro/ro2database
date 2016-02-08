@@ -24,13 +24,96 @@ var classNames = {
     '24592': 'Noviço'
 };
 
+var itemsCats = {
+    '0':'Todas',
+    '1':'Weapon',
+    '2':'Sword',
+    '3':'Great Sword',
+    '4':'Aura Sword',
+    '5':'Staff',
+    '6':'Rod',
+    '7':'Rune Staff',
+    '8':'Bow',
+    '9':'Quiver',
+    '10':'Hunter Bow',
+    '11':'Spear',
+    '12':'Dagger',
+    '13':'Claw',
+    '14':'Dual Dagger',
+    '15':'Mace',
+    '16':'Holy Mace',
+    '17':'Knuckle',
+    '18':'Stick',
+    '19':'Scythe',
+    '20':'Handle',
+    '21':'Doll',
+    '22':'Shield',
+    '23':'바이블',
+    '24':'Armor',
+    '25':'Cloth',
+    '26':'Cloth Top',
+    '27':'Cloth Bottom',
+    '28':'Cloth Helm',
+    '29':'Cloth Gloves',
+    '30':'Cloth Shoes',
+    '31':'Light Armor',
+    '32':'Light Armor Top',
+    '33':'Light Armor Bottom',
+    '34':'Light Armor Helm',
+    '35':'Light Armor Gloves',
+    '36':'Light Armor Shoes',
+    '37':'Heavy Armor',
+    '38':'Heavy Armor Top',
+    '39':'Heavy Armor Bottom',
+    '40':'Heavy Armor Helm',
+    '41':'Heavy Armor Gloves',
+    '42':'Heavy Armor Shoes',
+    '43':'Accessory',
+    '44':'Necklace',
+    '45':'Earrings',
+    '46':'Ring',
+    '47':'Ornament',
+    '48':'Decoration',
+    '49':'Deco. Clothes',
+    '50':'Deco. Acc.',
+    '51':'Card',
+    '52':'Ingredient',
+    '53':'Consumables',
+    '54':'Potion',
+    '55':'Recovery Potion',
+    '56':'Reinforced Potion',
+    '57':'Boost Potion',
+    '58':'Food',
+    '59':'Recovery Food',
+    '60':'Reinforced Food',
+    '61':'Socket',
+    '62':'Socket Drill',
+    '63':'Socket Stone',
+    '64':'Scroll',
+    '65':'Reinforced Buff',
+    '66':'Battle Assist',
+    '67':'Others',
+    '68':'Job Equipment',
+    '69':'Design',
+    '70':'Blacksmith',
+    '71':'Artisan',
+    '72':'Alchemist',
+    '73':'Chef',
+    '74':'Reinforcement',
+    '75':'Card Synthesis Stone',
+    '76':'Smelting stone',
+    '77':'Others'
+};
+
 var row_total = 0;
 var sel_class = 0;
+var sel_categories = 0;
 var act_start = 0;
 var itens_page = 5;
 
 function updateVars(new_start) {
     sel_class = $("#selclass").find('option:selected').val();
+    sel_categories = $("#selcategory").find('option:selected').val();
     act_start = new_start;
 }
 
@@ -38,7 +121,8 @@ function itemsPage() {
     var itemPage =  $('<li/>').append($('<li/>', {'id': 'filteroptions'}));
     itemPage.find('#filteroptions').append("<div id='itemlistoptions'></div>");
     itemPage.find("#filteroptions #itemlistoptions").append("<form id='itemsform' action='javascript:void(0);' method='get'></form>");
-    itemPage.find("#filteroptions #itemlistoptions #itemsform").append("<span class='classtext'>Classe:</span><select id='selclass' class='classes' list='classlist'>");
+    itemPage.find("#filteroptions #itemlistoptions #itemsform").append("<span class='classtext'>Classe:</span><select id='selclass' class='classes'>");
+    itemPage.find("#filteroptions #itemlistoptions #itemsform").append("<span class='classtext'>Categoria:</span><select id='selcategory' class='categories'>");
     itemPage.find("#filteroptions #itemlistoptions #itemsform").append("<input class='button' type='submit' onclick='window.updateVars(0);window.getItems();' value='Filtrar'>");
 
     $.each(classNames, function (index, value) {
@@ -46,7 +130,15 @@ function itemsPage() {
         if(index == sel_class) {
             selected = ' selected="true"';
         }
-        itemPage.find("#filteroptions #itemlistoptions #itemsform #selclass").append("<option id='" + index + "' value='" + index + "'" + selected + ">" + value + "</option>");
+        itemPage.find("#filteroptions #itemlistoptions #itemsform #selclass").append("<option value='" + index + "'" + selected + ">" + value + "</option>");
+    });
+
+    $.each(itemsCats, function (key, val) {
+        var selected = '';
+        if(key == sel_categories) {
+            selected = ' selected="true"';
+        }
+        itemPage.find("#selcategory").append("<option value='" + key + "'" + selected + ">" + val + "</option>");
     });
 
     //$('#content').append('<br style="clear: both;" />');
@@ -54,7 +146,7 @@ function itemsPage() {
 }
 
 function getItems() {
-    $.getJSON('json.php?get=item&classe=' + sel_class + '&start=' + act_start + '&count=' + itens_page, function (data) {
+    $.getJSON('json.php?get=item&data=[{"start":"' + act_start + '","count":"' + itens_page + '","classe":"' + sel_class + '","category":"' + sel_categories + '"}]', function (data) {
         var items = [];
         items.push(itemsPage());
         $.each(data, function (key, val) {
@@ -71,6 +163,9 @@ function getItems() {
                         line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'name'}));
                         line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'reqjob'}));
                         line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'reqlvl'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'desc'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'category'}));
+                        line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'itemlvl'}));
                         line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'reqsex'}));
                         line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'price'}));
                         line.find('#item-' + kk + ' .info').append($('<span/>', {'class': 'candrop'}));
@@ -85,8 +180,13 @@ function getItems() {
                                 case 'Name':
                                     line.find('.name').html(v);
                                     break;
+                                case 'Description':
+                                    line.find('.desc').html(v);
+                                    break;
+                                case 'Category':
+                                    line.find('.category').html('<b>Categoria:</b> ' + v);
+                                    break;
                                 case 'Grade':
-                                    //line.find('.name').append('&nbsp;<span>' + v + '</span>');
                                     switch (v) {
                                         case '1':
                                             line.find('.name').addClass('normal');
@@ -111,8 +211,11 @@ function getItems() {
                                 case 'Require_Job':
                                     line.find('.reqjob').html('<b>Classe:</b> ' + getiReqJob(v));
                                     break;
+                                case 'Item_Lv':
+                                    line.find('.itemlvl').html('<b>Item Lvl:</b> ' + v);
+                                    break;
                                 case 'Require_Level':
-                                    line.find('.reqlvl').html('<b>Lvl:</b> ' + getiLvl(v));
+                                    line.find('.reqlvl').html('<b>Lvl Requerido:</b> ' + getiLvl(v));
                                     break;
                                 case 'Require_Sex':
                                     line.find('.reqsex').html('<b>Sexo:</b> ' + getiReqSex(v));
@@ -144,8 +247,6 @@ function getItems() {
                     }
                 });
             }
-
-            /**/
         });
         $('#content').html('');
         $('<ul/>', {html: items.join(''), 'id': 'itemlist'}).appendTo('#content');
