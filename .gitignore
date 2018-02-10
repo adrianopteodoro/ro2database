@@ -3,3 +3,4 @@
 /upload/*.*
 *.zip
 sh.exe.stackdump
+vendor/
